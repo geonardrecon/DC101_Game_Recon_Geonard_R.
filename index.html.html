@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Whack-a-Mole</title>
+    <style>
+        body { font-family: Arial; text-align: center; background: #74b9ff; color: white; }
+        .hole { width: 100px; height: 100px; background: #6c5ce7; border-radius: 50%; margin: 10px; display: inline-block; position: relative; overflow: hidden; }
+        .mole { width: 80px; height: 80px; background: #e17055; border-radius: 50%; position: absolute; bottom: -80px; transition: bottom 0.3s; cursor: pointer; }
+        .mole.up { bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Whack-a-Mole</h1>
+    <div>Score: <span id="score">0</span> | Time: <span id="time">30</span>s</div>
+    <div id="board"></div>
+    <button id="start">Start</button>
+    <script>
+        const board = document.getElementById('board');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        const startBtn = document.getElementById('start');
+        let score = 0, timeLeft = 30, gameActive = false, timer, moleTimer;
+
+        for (let i = 1; i <= 9; i++) {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            const mole = document.createElement('div');
+            mole.className = 'mole';
+            mole.id = 'mole' + i;
+            hole.appendChild(mole);
+            board.appendChild(hole);
+        }
+
+        const moles = document.querySelectorAll('.mole');
+
+        function randomHole() { return Math.floor(Math.random() * 9); }
+        function popUp() {
+            const idx = randomHole();
+            const mole = moles[idx];
+            mole.classList.add('up');
+            setTimeout(() => mole.classList.remove('up'), 1000);
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (gameActive) return;
+            gameActive = true;
+            score = 0; timeLeft = 30;
+            scoreEl.textContent = score;
+            timeEl.textContent = timeLeft;
+            startBtn.disabled = true;
+            timer = setInterval(() => {
+                timeLeft--;
+                timeEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    clearInterval(moleTimer);
+                    gameActive = false;
+                    startBtn.disabled = false;
+                    alert(`Game Over! Score: ${score}`);
+                }
+            }, 1000);
+            moleTimer = setInterval(() => { if (gameActive) popUp(); }, 1500);
+        });
+
+        moles.forEach(mole => mole.addEventListener('click', () => {
+            if (!mole.classList.contains('up') || !gameActive) return;
+            score++;
+            scoreEl.textContent = score;
+            mole.classList.remove('up');
+        }));
+    </script>
+</body>
+</html>
